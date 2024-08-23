@@ -1,0 +1,6 @@
+mysql:
+  host: "eks-db-monitoring-aurora-mysql-one.cynrd5hzuufh.ap-northeast-2.rds.amazonaws.com"
+  user: "admin"
+  pass: "adminadmin"
+  port: 3306
+

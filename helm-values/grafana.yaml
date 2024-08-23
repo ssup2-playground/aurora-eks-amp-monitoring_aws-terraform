@@ -46,3 +46,7 @@ dashboards:
       gnetId: 3119
       revision: 2
       datasource: "amp"
+    mysql:
+      gnetId: 14057
+      revision: 1
+      datasource: "amp"

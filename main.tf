@@ -346,3 +346,40 @@ resource "kubectl_manifest" "adot_collector" {
   ]
 }
 
+## EKS / mysqld-exporter-one
+resource "helm_release" "aurora-mysql-one" {
+  namespace        = "observability"
+  create_namespace = true
+
+  name       = "aurora-mysql-one"
+  chart      = "prometheus-mysql-exporter"
+  repository = "https://prometheus-community.github.io/helm-charts"
+  version    = "2.6.1"
+
+  values = [
+    templatefile("${path.module}/helm-values/mysqld-exporter-one.yaml", {
+      region = local.region
+      svc_sg = module.sg_grafana.security_group_id
+      amp    = format("https://aps-workspaces.%s.amazonaws.com/workspaces/%s", local.region, module.prometheus.workspace_id)
+    })
+  ]
+}
+
+## EKS / mysqld-exporter-two
+resource "helm_release" "aurora-mysql-two" {
+  namespace        = "observability"
+  create_namespace = true
+
+  name       = "aurora-mysql-two"
+  chart      = "prometheus-mysql-exporter"
+  repository = "https://prometheus-community.github.io/helm-charts"
+  version    = "2.6.1"
+
+  values = [
+    templatefile("${path.module}/helm-values/mysqld-exporter-two.yaml", {
+      region = local.region
+      svc_sg = module.sg_grafana.security_group_id
+      amp    = format("https://aps-workspaces.%s.amazonaws.com/workspaces/%s", local.region, module.prometheus.workspace_id)
+    })
+  ]
+}
