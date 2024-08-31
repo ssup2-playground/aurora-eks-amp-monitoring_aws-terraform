@@ -358,9 +358,7 @@ resource "helm_release" "aurora-mysql-one" {
 
   values = [
     templatefile("${path.module}/helm-values/mysqld-exporter-one.yaml", {
-      region = local.region
-      svc_sg = module.sg_grafana.security_group_id
-      amp    = format("https://aps-workspaces.%s.amazonaws.com/workspaces/%s", local.region, module.prometheus.workspace_id)
+      endpoint = module.aurora_mysql.cluster_instances.one.endpoint
     })
   ]
 }
@@ -377,9 +375,7 @@ resource "helm_release" "aurora-mysql-two" {
 
   values = [
     templatefile("${path.module}/helm-values/mysqld-exporter-two.yaml", {
-      region = local.region
-      svc_sg = module.sg_grafana.security_group_id
-      amp    = format("https://aps-workspaces.%s.amazonaws.com/workspaces/%s", local.region, module.prometheus.workspace_id)
+      endpoint = module.aurora_mysql.cluster_instances.two.endpoint
     })
   ]
 }
