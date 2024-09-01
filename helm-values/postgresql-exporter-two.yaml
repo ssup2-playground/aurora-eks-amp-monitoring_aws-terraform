@@ -1,8 +1,9 @@
-mysql:
-  host: "${endpoint}"
-  user: "${user}"
-  pass: "${password}"
-  port: 3306
+config:
+  datasource:
+    host: "${endpoint}"
+    user: "${user}"
+    password: "${password}" 
+    database: "postgres"
 
 resources:
   requests:
@@ -15,4 +16,5 @@ resources:
 annotations:
   prometheus.io/scrape: "true"
   prometheus.io/path: "/metrics"
-  prometheus.io/port: "9104"
+  prometheus.io/port: "9187"
+

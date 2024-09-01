@@ -42,11 +42,15 @@ dashboardProviders:
 
 dashboards:
   default:
-    kubernetes-cluster-monitoring-via-prometheus:
-      gnetId: 3119
-      revision: 2
-      datasource: "amp"
     mysql:
       gnetId: 14057
       revision: 1
+      datasource: "amp"
+    mysql-ssup2:
+      gnetId: 21809
+      revision: 1
+      datasource: "amp"
+    postgresql-database:
+      gnetId: 9628
+      revision: 7
       datasource: "amp"

@@ -54,6 +54,11 @@ locals {
   region   = "ap-northeast-2"
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
   vpc_cidr = "10.0.0.0/16"
+
+  aurora_mysql_user           = "admin"
+  aurora_mysql_password       = "adminadmin"
+  aurora_postgresql_user      = "root"
+  aurora_postgresql_password  = "rootroot"
 }
 
 ## AMP
@@ -122,6 +127,36 @@ module "aurora_mysql" {
   manage_master_user_password = false
   master_username             = "admin"
   master_password             = "adminadmin"
+}
+
+module "aurora_postgresql" {
+  source = "terraform-aws-modules/rds-aurora/aws"
+
+  name = format("%s-aurora-postgresql", local.name)
+
+  engine              = "aurora-postgresql"
+  skip_final_snapshot = true
+
+  instance_class = "db.r5.large"
+  instances = {
+    one = {}
+    two = {}
+  }
+
+  vpc_id                 = module.vpc.vpc_id
+  create_db_subnet_group = false
+  db_subnet_group_name   = module.vpc.database_subnet_group_name
+
+  create_security_group = true
+  security_group_rules = {
+    ingress = {
+      cidr_blocks = module.vpc.private_subnets_cidr_blocks
+    }
+  }
+
+  manage_master_user_password = false
+  master_username             = "root"
+  master_password             = "rootroot"
 }
 
 ## EKS
@@ -359,6 +394,8 @@ resource "helm_release" "aurora-mysql-one" {
   values = [
     templatefile("${path.module}/helm-values/mysqld-exporter-one.yaml", {
       endpoint = module.aurora_mysql.cluster_instances.one.endpoint
+      user     = local.aurora_mysql_user 
+      password = local.aurora_mysql_password
     })
   ]
 }
@@ -376,6 +413,46 @@ resource "helm_release" "aurora-mysql-two" {
   values = [
     templatefile("${path.module}/helm-values/mysqld-exporter-two.yaml", {
       endpoint = module.aurora_mysql.cluster_instances.two.endpoint
+      user     = local.aurora_mysql_user 
+      password = local.aurora_mysql_password
+    })
+  ]
+}
+
+## EKS / postgresql-exporter-one
+resource "helm_release" "aurora-postgresql-one" {
+  namespace        = "observability"
+  create_namespace = true
+
+  name       = "aurora-postgresql-one"
+  chart      = "prometheus-postgres-exporter"
+  repository = "https://prometheus-community.github.io/helm-charts"
+  version    = "6.3.1"
+
+  values = [
+    templatefile("${path.module}/helm-values/postgresql-exporter-one.yaml", {
+      endpoint = module.aurora_postgresql.cluster_instances.one.endpoint
+      user     = local.aurora_postgresql_user 
+      password = local.aurora_postgresql_password
+    })
+  ]
+}
+
+## EKS / postgresql-exporter-two
+resource "helm_release" "aurora-postgresql-two" {
+  namespace        = "observability"
+  create_namespace = true
+
+  name       = "aurora-postgresql-two"
+  chart      = "prometheus-postgres-exporter"
+  repository = "https://prometheus-community.github.io/helm-charts"
+  version    = "6.3.1"
+
+  values = [
+    templatefile("${path.module}/helm-values/postgresql-exporter-two.yaml", {
+      endpoint = module.aurora_postgresql.cluster_instances.two.endpoint
+      user     = local.aurora_postgresql_user 
+      password = local.aurora_postgresql_password
     })
   ]
 }
