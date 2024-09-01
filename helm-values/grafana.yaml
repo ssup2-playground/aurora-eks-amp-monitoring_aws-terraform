@@ -47,7 +47,7 @@ dashboards:
       revision: 1
       datasource: "amp"
     mysql-ssup2:
-      gnetId: 21809
+      gnetId: 21812
       revision: 1
       datasource: "amp"
     postgresql-database:
