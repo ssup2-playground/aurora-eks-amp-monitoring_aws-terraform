@@ -26,6 +26,11 @@ datasources:
         sigV4Auth: true
         sigV4AuthType: "default"
         sigV4Region: "${region}"
+    - name: "cloudwatch"
+      type: "cloudwatch"
+      jsonData:
+        authType: "default"
+        defaultRegion: "${region}"
 
 dashboardProviders:
   dashboardproviders.yaml:

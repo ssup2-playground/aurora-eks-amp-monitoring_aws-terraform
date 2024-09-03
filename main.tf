@@ -49,7 +49,7 @@ data "aws_availability_zones" "available" {}
 
 ## Locals
 locals {
-  name = "eks-db-monitoring"
+  name = "aurora-eks-amp-monitoring"
 
   region   = "ap-northeast-2"
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
@@ -275,8 +275,7 @@ resource "helm_release" "aws_load_balancer_controller" {
   }
 
   depends_on = [
-    module.irsa_load_balancer_controller,
-    helm_release.grafana,
+    module.irsa_load_balancer_controller
   ]
 }
 
@@ -311,6 +310,10 @@ module "irsa_grafana" {
 
   role_name                                       = format("%s-irsa-grafana", local.name)
   attach_amazon_managed_service_prometheus_policy = true
+
+  role_policy_arns = {
+    CloudWatchReadOnlyAccess = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
+  }
 
   oidc_providers = {
     main = {
@@ -377,7 +380,7 @@ resource "kubectl_manifest" "adot_collector" {
   yaml_body = each.value
 
   depends_on = [
-    module.eks
+    module.irsa_adot_collector
   ]
 }
 
